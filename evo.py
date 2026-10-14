@@ -50,7 +50,7 @@ n = False
 
 while n == False:
 
-    generation += 1 
+    generation += 1
 
     
     fitness_list = []
@@ -117,6 +117,7 @@ while n == False:
         if i == Target_string :
             n = True
             print(i)
+            print(generation)
             break
 
 

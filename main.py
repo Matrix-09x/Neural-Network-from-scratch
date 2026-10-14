@@ -22,7 +22,7 @@ outer_ellipse_rect = pygame.Rect(0,0,1000,600)
 outer_ellipse_rect.center = (640,360)
 ellipse_rect.center = (640,360)
 
-car_x , car_y = 300,300
+car_x , car_y = 180 , 360
 
 rotate = 0
 
@@ -44,6 +44,9 @@ while running :
     pygame.draw.ellipse(window,'green',ellipse_rect)
 
 
+
+    
+
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_a] :
@@ -61,30 +64,52 @@ while running :
     if keys[pygame.K_s] :
         car_x  += speed * math.sin(math.radians(rotate))
         car_y += speed  * math.cos(math.radians(rotate))
+
+
+
     
-        
+
+    
+
     rotated_image = pygame.transform.rotate(scaled_car_image,rotate)
 
     rotated_rect = rotated_image.get_rect()
 
     rotated_rect.center =  (car_x , car_y)
 
-
     window.blit(rotated_image ,rotated_rect)
+
+    correct_position = False 
+
+    if  ((car_x- 640)**2/500**2) + ((car_y - 360 )**2/300**2) < 1 and ((car_x - 640)**2/400**2) + ((car_y-  360)**2/200**2) > 1  :
+        correct_position = True
+ 
     
 
 
+    
+    if not correct_position :
+        car_x , car_y = 180 , 360
+        rotate = 0
       
 
     pygame.display.flip()
 
     clock.tick(60)
+
+
  
         
- 
-
-
 pygame.quit()
+ 
+    
+
+
+
+            
+
+
+
 
 
 
