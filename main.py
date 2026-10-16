@@ -26,7 +26,24 @@ car_x , car_y = 180 , 360
 
 rotate = 0
 
+
 speed = 2
+
+sensor_length  = 150 
+
+sensor_angles = [0,-90,-60,-30,30,60,90]
+
+
+def sensor_length_cal(car_x,car_y,rotate,sensorlength) :
+
+    x_end = car_x - (sensorlength * math.sin(math.radians(rotate)))
+    y_end = car_y - (sensorlength * math.cos(math.radians(rotate)))
+
+    return x_end , y_end
+
+
+
+
 
 while running :
 
@@ -43,6 +60,10 @@ while running :
     pygame.draw.ellipse(window,'black',outer_ellipse_rect)
     pygame.draw.ellipse(window,'green',ellipse_rect)
 
+    color = window.get_at((car_x,car_y))
+    print(color)
+
+    
 
 
     
@@ -79,18 +100,26 @@ while running :
 
     window.blit(rotated_image ,rotated_rect)
 
+    for i in  sensor_angles :
+
+        x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length)
+        pygame.draw.line(window,'yellow',[car_x,car_y],[x_end,y_end],width=1)
+
+
+
+    
+    
+
+
     correct_position = False 
 
     if  ((car_x- 640)**2/500**2) + ((car_y - 360 )**2/300**2) < 1 and ((car_x - 640)**2/400**2) + ((car_y-  360)**2/200**2) > 1  :
         correct_position = True
  
-    
-
-
-    
     if not correct_position :
         car_x , car_y = 180 , 360
         rotate = 0
+    
       
 
     pygame.display.flip()
