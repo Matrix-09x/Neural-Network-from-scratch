@@ -34,13 +34,28 @@ sensor_length  = 150
 sensor_angles = [0,-90,-60,-30,30,60,90]
 
 
-def sensor_length_cal(car_x,car_y,rotate,sensorlength) :
+def sensor_length_cal(car_x,car_y,rotate,sensorlength,surface) :
 
-    x_end = car_x - (sensorlength * math.sin(math.radians(rotate)))
-    y_end = car_y - (sensorlength * math.cos(math.radians(rotate)))
+    distance = 0 
+    while distance < sensorlength :
+        x_end = car_x - (distance * math.sin(math.radians(rotate)))
+        y_end = car_y - (distance * math.cos(math.radians(rotate)))
+        x_end = int(x_end)
+        y_end = int(y_end)
 
-    return x_end , y_end
+        color = surface.get_at((x_end,y_end))
 
+        if color != (0,0,0,255) :
+            print(color)
+            break
+
+
+        distance += 1
+
+
+    return distance , x_end , y_end
+
+        
 
 
 
@@ -98,12 +113,27 @@ while running :
 
     rotated_rect.center =  (car_x , car_y)
 
-    window.blit(rotated_image ,rotated_rect)
-
+    distances = []
+    x_ends = []
+    y_ends = []
+    
     for i in  sensor_angles :
 
-        x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length)
-        pygame.draw.line(window,'yellow',[car_x,car_y],[x_end,y_end],width=1)
+        distance, x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length,window)
+
+        distances.append(distance)
+        x_ends.append(x_end)
+        y_ends.append(y_end)
+
+    print(distances[0])
+
+    for x_e,y_e in zip(x_ends,y_ends) :
+
+        pygame.draw.line(window,'yellow',[car_x,car_y],[x_e,y_e],width=1)
+
+
+    window.blit(rotated_image ,rotated_rect)
+
 
 
 
