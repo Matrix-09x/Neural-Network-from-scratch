@@ -1,6 +1,6 @@
 import pygame
 
-import numpy 
+import numpy as np
 
 import math 
 
@@ -46,8 +46,10 @@ def sensor_length_cal(car_x,car_y,rotate,sensorlength,surface) :
         color = surface.get_at((x_end,y_end))
 
         if color != (0,0,0,255) :
-            print(color)
+           
             break
+            
+            
 
 
         distance += 1
@@ -57,15 +59,37 @@ def sensor_length_cal(car_x,car_y,rotate,sensorlength,surface) :
 
         
 
+def normalization(distance,sensor_length) :
+    output = []
+    for i in distance :
+        no = i/sensor_length
+        output.append(no)
+
+    output = np.array(output)
+
+    return output
 
 
+def activation(output) :
+    if output > 0 :
+        number = output 
+
+    else :
+        number = 0
+    return number
+
+
+weights  = np.random.rand(8,7)
+
+biases =  np.random.rand(8)
 
 while running :
 
     for event in pygame.event.get() :
         if event.type == pygame.QUIT :
-            running = False 
+            running = False
 
+ 
 
 
   
@@ -76,7 +100,7 @@ while running :
     pygame.draw.ellipse(window,'green',ellipse_rect)
 
     color = window.get_at((car_x,car_y))
-    print(color)
+    
 
     
 
@@ -125,11 +149,27 @@ while running :
         x_ends.append(x_end)
         y_ends.append(y_end)
 
-    print(distances[0])
+    normalized_distance = normalization(distances,sensor_length)
+
+    layer_output = []
+    for neuron_weight,neuron_bias in zip(weights,biases) :
+        output = neuron_weight @ normalized_distance + neuron_bias
+        layer_output.append(output)
+
+    activated_values = []
+
+    for i in layer_output :
+        value = activation(i)
+        activated_values.append(value)
+    
+
+
+
 
     for x_e,y_e in zip(x_ends,y_ends) :
 
         pygame.draw.line(window,'yellow',[car_x,car_y],[x_e,y_e],width=1)
+       
 
 
     window.blit(rotated_image ,rotated_rect)
