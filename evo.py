@@ -1,7 +1,7 @@
 import numpy as np 
 import random as rd
 import string 
-Target_string = 'hello my name is this'
+Target_string = 'neurodrive'
 
 
 population_szie = 150
@@ -25,6 +25,8 @@ def population_func(number,length) :
        population.append(word)
 
    return population 
+
+
 
 
 

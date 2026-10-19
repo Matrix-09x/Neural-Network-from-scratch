@@ -36,6 +36,7 @@ sensor_angles = [0,-90,-60,-30,30,60,90]
 
 def sensor_length_cal(car_x,car_y,rotate,sensorlength,surface) :
 
+
     distance = 0 
     while distance < sensorlength :
         x_end = car_x - (distance * math.sin(math.radians(rotate)))
@@ -70,139 +71,186 @@ def normalization(distance,sensor_length) :
     return output
 
 
+
 def activation(output) :
     if output > 0 :
         number = output 
 
     else :
         number = 0
+
     return number
 
 
-weights  = np.random.rand(8,7)
+def population_func(number) :
+    population_parameter_list = []
+    for i in range(1,number+1) :
+        weights = np.random.rand(8,7)
+        biases = np.random.rand(8)
+        output_weight = np.random.rand(3,8)
+        output_bias = np.random.rand(3)
+        population_parameter_list.append([weights,biases,output_weight,output_bias])
 
-biases =  np.random.rand(8)
-
-while running :
-
-    for event in pygame.event.get() :
-        if event.type == pygame.QUIT :
-            running = False
-
- 
-
-
-  
-    
-    window.fill('green')
-
-    pygame.draw.ellipse(window,'black',outer_ellipse_rect)
-    pygame.draw.ellipse(window,'green',ellipse_rect)
-
-    color = window.get_at((car_x,car_y))
-    
-
-    
+    return population_parameter_list
 
 
     
 
-    keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_a] :
-        rotate += 1
 
-    if keys[pygame.K_d] :
-        rotate -= 1 
+def fitness_function(frame_survived) :
 
-  
-    if keys[pygame.K_w] :
+    return frame_survived 
+    
+
+
+population = population_func(50)
+
+frame_survived = 0
+
+fitness_scores = []
+
+parameters_list = []
+for popu in population:
+
+    weights = popu[0]
+    biases = popu[1]
+    output_weight = popu[2]
+    output_bias = popu[3]
+
+    while running :
+
+        frame_survived += 1
+
+        for event in pygame.event.get() :
+            if event.type == pygame.QUIT :
+                running = False
+
+    
+
+
+    
+        
+        window.fill('green')
+
+        pygame.draw.ellipse(window,'black',outer_ellipse_rect)
+        pygame.draw.ellipse(window,'green',ellipse_rect)
+
+        color = window.get_at((car_x,car_y))
+        
+
+        
+
+
+        
+
+        keys = pygame.key.get_pressed()
+
+        # if keys[pygame.K_a] :
+        #     rotate += 1
+
+        # if keys[pygame.K_d] :
+        #     rotate -= 1 
+
+    
+        
 
         car_x -=  speed * math.sin(math.radians(rotate))
         car_y -= speed * math.cos(math.radians(rotate))
+            
+        # if keys[pygame.K_s] :
+        #     car_x  += speed * math.sin(math.radians(rotate))
+        #     car_y += speed  * math.cos(math.radians(rotate))
         
-    if keys[pygame.K_s] :
-        car_x  += speed * math.sin(math.radians(rotate))
-        car_y += speed  * math.cos(math.radians(rotate))
 
+        rotated_image = pygame.transform.rotate(scaled_car_image,rotate)
 
+        rotated_rect = rotated_image.get_rect()
 
-    
+        rotated_rect.center =  (car_x , car_y)
 
-    
-
-    rotated_image = pygame.transform.rotate(scaled_car_image,rotate)
-
-    rotated_rect = rotated_image.get_rect()
-
-    rotated_rect.center =  (car_x , car_y)
-
-    distances = []
-    x_ends = []
-    y_ends = []
-    
-    for i in  sensor_angles :
-
-        distance, x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length,window)
-
-        distances.append(distance)
-        x_ends.append(x_end)
-        y_ends.append(y_end)
-
-    normalized_distance = normalization(distances,sensor_length)
-
-    layer_output = []
-    for neuron_weight,neuron_bias in zip(weights,biases) :
-        output = neuron_weight @ normalized_distance + neuron_bias
-        layer_output.append(output)
-
-    activated_values = []
-
-    for i in layer_output :
-        value = activation(i)
-        activated_values.append(value)
-    
-
-
-
-
-    for x_e,y_e in zip(x_ends,y_ends) :
-
-        pygame.draw.line(window,'yellow',[car_x,car_y],[x_e,y_e],width=1)
-       
-
-
-    window.blit(rotated_image ,rotated_rect)
-
-
-
-
-    
-    
-
-
-    correct_position = False 
-
-    if  ((car_x- 640)**2/500**2) + ((car_y - 360 )**2/300**2) < 1 and ((car_x - 640)**2/400**2) + ((car_y-  360)**2/200**2) > 1  :
-        correct_position = True
- 
-    if not correct_position :
-        car_x , car_y = 180 , 360
-        rotate = 0
-    
-      
-
-    pygame.display.flip()
-
-    clock.tick(60)
-
-
- 
+        distances = []
+        x_ends = []
+        y_ends = []
         
+        for i in  sensor_angles :
+
+            distance, x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length,window)
+
+            distances.append(distance)
+            x_ends.append(x_end)
+            y_ends.append(y_end)
+
+        normalized_distance = normalization(distances,sensor_length)
+
+
+        layer_output = np.dot(weights,normalized_distance) + biases
+    
+
+        activated_values = []
+
+        for i in layer_output :
+            value = activation(i)
+            activated_values.append(value)
+
+        activated_values = np.array(activated_values)
+
+        output_layer = np.dot(output_weight,activated_values) + output_bias
+    
+
+        
+        
+        action = np.argmax(output_layer)
+
+        if action == 0 :
+            rotate += 1
+    
+        elif action == 1 :
+            rotate -=1
+
+
+        for x_e,y_e in zip(x_ends,y_ends) :
+
+            pygame.draw.line(window,'yellow',[car_x,car_y],[x_e,y_e],width=1)
+        
+
+
+        window.blit(rotated_image ,rotated_rect)
+
+     
+        
+        
+
+
+        correct_position = False 
+
+        if  ((car_x- 640)**2/500**2) + ((car_y - 360 )**2/300**2) < 1 and ((car_x - 640)**2/400**2) + ((car_y-  360)**2/200**2) > 1  :
+            correct_position = True
+    
+        if not correct_position :
+            car_x , car_y = 180 , 360
+            rotate = 0
+            fitness = fitness_function(frame_survived)
+            fitness_scores.append(fitness)
+            frame_survived = 0
+            break
+            
+            
+        
+        
+
+        pygame.display.flip()
+
+        clock.tick(60)
+
+    
+            
 pygame.quit()
- 
-    
 
+
+
+    
+# print(fitness_scores)
 
 
             
