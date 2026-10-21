@@ -4,6 +4,9 @@ import numpy as np
 
 import math 
 
+import random
+
+
 pygame .init()
 
 window = pygame.display.set_mode((1280,720))
@@ -96,6 +99,69 @@ def population_func(number) :
 
     
 
+def selection(fitness_scores) :
+    selected_candidates = []
+
+    fitness_scores = np.array(fitness_scores)
+    sorted_fitness = np.argsort(fitness_scores)[::-1]
+    top1 , top2 = sorted_fitness[0] , sorted_fitness[1]
+    selected_candidates.extend([top1,top2])
+
+    for i in range(1,49):
+        random_three = random.sample(range(0,len(fitness_scores)),k=3)
+        best_candidate = max(random_three,key=lambda index :fitness_scores[index])
+        selected_candidates.append(best_candidate)
+            
+    return selected_candidates
+
+                
+
+def cross0ver(selected_candidates,population) :
+    random.shuffle(selected_candidate)
+
+    for index,candidate in enumerate(selected_candidate) :
+        if index % 2 ==  0 :
+            parent_a = selected_candidate[index]
+            parent_b = selected_candidate[index+1]
+            metrices_a = population[parent_a]
+            metrices_b = population[parent_b]
+
+            weights_a , bias_a , output_weights_a , output_bias_a  =  metrices_a[0], metrices_a[1] , metrices_a[2] , metrices_a[3]
+            weights_b , bias_b , output_weights_b , output_bias_b = metrices_b[0] , metrices_b[1] ,  metrices_b[2] , metrices_b[3]
+
+            child_weight = []
+            for a , b  in zip(weights_a,weights_b) :
+                random_point = random.randint(1,6)
+                partition_a = a[random_point:]
+                partition_b = b[:random_point]
+
+                child = np.concatenate((partition_a,partition_b))
+                child_weight.append(child)
+
+            child_weight = np.array(child_weight)
+
+
+            random_point = random.randint(1,7)
+            partition_a = bias_a[random_point:]
+            partition_b = bias_b[:random_point]
+            child_bias = np.concatenate((partition_a,partition_b))
+
+            child_output_weights = []
+            for a,b in zip(output_weights_a,output_weights_b) :
+                random_point = random.randint(1,7)
+                partition_a = output_weights_a[random_point:]
+                partition_b = output_weights_b[:random_point]
+                child = np.concatenate((partition_a,partition_b))
+                child_output_weights.append(child)
+
+            child_output_weights = np.array((child_output_weights))
+
+            random_point = random.randint(1,2) 
+            partition_a = output_bias_a[random_point:]
+            partition_b = output_bias_b[:random_point]
+            child_output_bias = np.concatenate((partition_a,partition_b))
+
+
 
 
 def fitness_function(frame_survived) :
@@ -113,12 +179,22 @@ fitness_scores = []
 parameters_list = []
 for popu in population:
 
+
+
     weights = popu[0]
     biases = popu[1]
     output_weight = popu[2]
     output_bias = popu[3]
 
     while running :
+
+        if frame_survived == 3000 :
+            car_x,car_y = 180 , 360
+            rotate = 0
+            fitness = fitness_function(frame_survived)
+            fitness_scores.append(fitness)
+            frame_survived = 0
+            break
 
         frame_survived += 1
 
@@ -232,9 +308,10 @@ for popu in population:
             rotate = 0
             fitness = fitness_function(frame_survived)
             fitness_scores.append(fitness)
+            
             frame_survived = 0
             break
-            
+        
             
         
         
@@ -243,7 +320,17 @@ for popu in population:
 
         clock.tick(60)
 
-    
+    if running == False :
+        break 
+
+selected_candidate = selection(fitness_scores)
+
+print(len(fitness_scores))
+print(len(selected_candidate))
+print(selected_candidate[:2])
+
+
+
             
 pygame.quit()
 

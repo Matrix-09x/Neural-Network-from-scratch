@@ -1,7 +1,7 @@
 import numpy as np 
 import random as rd
 import string 
-Target_string = 'neurodrive'
+Target_string = 'iqra pagal khane jayegi'
 
 
 population_szie = 150
@@ -119,7 +119,7 @@ while n == False:
         if i == Target_string :
             n = True
             print(i)
-            print(generation)
+            print(f'No of generations | {generation}')
             break
 
 
