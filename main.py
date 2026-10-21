@@ -4,6 +4,7 @@ import numpy as np
 
 import math 
 
+
 import random
 
 
@@ -97,8 +98,6 @@ def population_func(number) :
     return population_parameter_list
 
 
-    
-
 def selection(fitness_scores) :
     selected_candidates = []
 
@@ -116,13 +115,18 @@ def selection(fitness_scores) :
 
                 
 
-def cross0ver(selected_candidates,population) :
-    random.shuffle(selected_candidate)
+def cross0ver(selected_candidate,population) :
 
-    for index,candidate in enumerate(selected_candidate) :
+    new_generation = [] 
+    elite_candiadate_1 , elite_candidate_2 =  population[selected_candidate[0]] , population[selected_candidate[1]]
+    new_generation.extend((elite_candiadate_1 , elite_candidate_2))
+    new_selected_candidate = selected_candidate[2:]
+    random.shuffle(new_selected_candidate)
+
+    for index,candidate in enumerate(new_selected_candidate) :
         if index % 2 ==  0 :
-            parent_a = selected_candidate[index]
-            parent_b = selected_candidate[index+1]
+            parent_a = new_selected_candidate[index]
+            parent_b = new_selected_candidate[index+1]
             metrices_a = population[parent_a]
             metrices_b = population[parent_b]
 
@@ -130,36 +134,59 @@ def cross0ver(selected_candidates,population) :
             weights_b , bias_b , output_weights_b , output_bias_b = metrices_b[0] , metrices_b[1] ,  metrices_b[2] , metrices_b[3]
 
             child_weight = []
+            second_child_weight = []
             for a , b  in zip(weights_a,weights_b) :
                 random_point = random.randint(1,6)
                 partition_a = a[random_point:]
                 partition_b = b[:random_point]
+                second_partion_a = a[:random_point]
+                second_partion_b = b[random_point:]
 
                 child = np.concatenate((partition_a,partition_b))
+                second_child = np.concatenate((second_partion_a,second_partion_b))
                 child_weight.append(child)
+                second_child_weight.append(second_child)
 
             child_weight = np.array(child_weight)
+            second_child_weight = np.array(second_child_weight)
 
 
             random_point = random.randint(1,7)
             partition_a = bias_a[random_point:]
+            second_partion_a = bias_a[:random_point]
             partition_b = bias_b[:random_point]
+            second_partion_b = bias_b[random_point:]
             child_bias = np.concatenate((partition_a,partition_b))
+            second_child_bias = np.concatenate((second_partion_a,second_partion_b))
 
+            second_child_output_weight = []
             child_output_weights = []
             for a,b in zip(output_weights_a,output_weights_b) :
                 random_point = random.randint(1,7)
-                partition_a = output_weights_a[random_point:]
-                partition_b = output_weights_b[:random_point]
+                partition_a = a[random_point:]
+                second_partion_a = a[:random_point]
+                partition_b = b[:random_point]
+                second_partion_b = b[random_point:]
                 child = np.concatenate((partition_a,partition_b))
+                second_child = np.concatenate((second_partion_a,second_partion_b))
                 child_output_weights.append(child)
+                second_child_output_weight.append(second_child)
 
             child_output_weights = np.array((child_output_weights))
+            second_child_output_weight = np.array((second_child_output_weight))
 
             random_point = random.randint(1,2) 
             partition_a = output_bias_a[random_point:]
+            second_partion_a = output_bias_a[:random_point]
             partition_b = output_bias_b[:random_point]
+            second_partion_b = output_bias_b[random_point:]
             child_output_bias = np.concatenate((partition_a,partition_b))
+            second_child_output_bias = np.concatenate((second_partion_a,second_partion_b))
+
+            new_generation.append([child_weight,child_bias,child_output_weights,child_output_bias])
+            new_generation.append([second_child_weight,second_child_bias,second_child_output_weight,second_child_output_bias])
+
+    return new_generation
 
 
 
@@ -325,14 +352,12 @@ for popu in population:
 
 selected_candidate = selection(fitness_scores)
 
-print(len(fitness_scores))
-print(len(selected_candidate))
-print(selected_candidate[:2])
+new_generation = cross0ver(selected_candidate,population)
+print(len(new_generation))
 
-
+pygame.quit()
 
             
-pygame.quit()
 
 
 
