@@ -113,7 +113,20 @@ def selection(fitness_scores) :
             
     return selected_candidates
 
-                
+
+def mutation(paramerters) :
+    for metrics in paramerters :
+        for i in np.ndindex(metrics.shape) :
+            per_parameter = random.uniform(0,1)
+            if per_parameter <= 0.05 :
+                replaced_number = random.uniform(-1,1)
+                metrics[i] = replaced_number
+
+    return paramerters
+
+        
+
+
 
 def cross0ver(selected_candidate,population) :
 
@@ -122,6 +135,8 @@ def cross0ver(selected_candidate,population) :
     new_generation.extend((elite_candiadate_1 , elite_candidate_2))
     new_selected_candidate = selected_candidate[2:]
     random.shuffle(new_selected_candidate)
+
+    
 
     for index,candidate in enumerate(new_selected_candidate) :
         if index % 2 ==  0 :
@@ -182,11 +197,26 @@ def cross0ver(selected_candidate,population) :
             second_partion_b = output_bias_b[random_point:]
             child_output_bias = np.concatenate((partition_a,partition_b))
             second_child_output_bias = np.concatenate((second_partion_a,second_partion_b))
+            child_parameters = [child_weight,child_bias,child_output_weights,child_output_bias]
+            second_child_parameters =  [second_child_weight,second_child_bias,second_child_output_weight,second_child_output_bias]
 
-            new_generation.append([child_weight,child_bias,child_output_weights,child_output_bias])
-            new_generation.append([second_child_weight,second_child_bias,second_child_output_weight,second_child_output_bias])
+            for i in range(1,3) :
+                mutation_prob = random.uniform(0,1)
+                if mutation_prob <= 0.01 :
+                    if i == 1 :
+                        child_parameters = mutation(child_parameters)
+                    else :
+                        second_child_parameters = mutation(second_child_parameters)
+                    
+
+
+            new_generation.append(child_parameters)
+            new_generation.append(second_child_parameters)
+            
+
 
     return new_generation
+
 
 
 
@@ -204,156 +234,166 @@ frame_survived = 0
 fitness_scores = []
 
 parameters_list = []
-for popu in population:
+
+
+g = 0
+for i in range(1,6):
+
+    g += 1 
+    print(f'generation no : {g}')
+    for popu in population:
 
 
 
-    weights = popu[0]
-    biases = popu[1]
-    output_weight = popu[2]
-    output_bias = popu[3]
+        weights = popu[0]
+        biases = popu[1]
+        output_weight = popu[2]
+        output_bias = popu[3]
 
-    while running :
+        while running :
 
-        if frame_survived == 3000 :
-            car_x,car_y = 180 , 360
-            rotate = 0
-            fitness = fitness_function(frame_survived)
-            fitness_scores.append(fitness)
-            frame_survived = 0
-            break
+            if frame_survived == 3000 :
+                car_x,car_y = 180 , 360
+                rotate = 0
+                fitness = fitness_function(frame_survived)
+                fitness_scores.append(fitness)
+                frame_survived = 0
+                break
 
-        frame_survived += 1
+            frame_survived += 1
 
-        for event in pygame.event.get() :
-            if event.type == pygame.QUIT :
-                running = False
-
-    
-
-
-    
-        
-        window.fill('green')
-
-        pygame.draw.ellipse(window,'black',outer_ellipse_rect)
-        pygame.draw.ellipse(window,'green',ellipse_rect)
-
-        color = window.get_at((car_x,car_y))
-        
+            for event in pygame.event.get() :
+                if event.type == pygame.QUIT :
+                    running = False
 
         
 
 
         
-
-        keys = pygame.key.get_pressed()
-
-        # if keys[pygame.K_a] :
-        #     rotate += 1
-
-        # if keys[pygame.K_d] :
-        #     rotate -= 1 
-
-    
-        
-
-        car_x -=  speed * math.sin(math.radians(rotate))
-        car_y -= speed * math.cos(math.radians(rotate))
             
-        # if keys[pygame.K_s] :
-        #     car_x  += speed * math.sin(math.radians(rotate))
-        #     car_y += speed  * math.cos(math.radians(rotate))
+            window.fill('green')
+
+            pygame.draw.ellipse(window,'black',outer_ellipse_rect)
+            pygame.draw.ellipse(window,'green',ellipse_rect)
+
+            color = window.get_at((car_x,car_y))
+            
+        
+            
+
+            keys = pygame.key.get_pressed()
+
+            # if keys[pygame.K_a] :
+            #     rotate += 1
+
+            # if keys[pygame.K_d] :
+            #     rotate -= 1 
+
+        
+            
+
+            car_x -=  speed * math.sin(math.radians(rotate))
+            car_y -= speed * math.cos(math.radians(rotate))
+                
+            # if keys[pygame.K_s] :
+            #     car_x  += speed * math.sin(math.radians(rotate))
+            #     car_y += speed  * math.cos(math.radians(rotate))
+            
+
+            rotated_image = pygame.transform.rotate(scaled_car_image,rotate)
+
+            rotated_rect = rotated_image.get_rect()
+
+            rotated_rect.center =  (car_x , car_y)
+
+            distances = []
+            x_ends = []
+            y_ends = []
+            
+            for i in  sensor_angles :
+
+                distance, x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length,window)
+
+                distances.append(distance)
+                x_ends.append(x_end)
+                y_ends.append(y_end)
+
+            normalized_distance = normalization(distances,sensor_length)
+
+
+            layer_output = np.dot(weights,normalized_distance) + biases
         
 
-        rotated_image = pygame.transform.rotate(scaled_car_image,rotate)
+            activated_values = []
 
-        rotated_rect = rotated_image.get_rect()
+            for i in layer_output :
+                value = activation(i)
+                activated_values.append(value)
 
-        rotated_rect.center =  (car_x , car_y)
+            activated_values = np.array(activated_values)
 
-        distances = []
-        x_ends = []
-        y_ends = []
+            output_layer = np.dot(output_weight,activated_values) + output_bias
         
-        for i in  sensor_angles :
 
-            distance, x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length,window)
+            
+            
+            action = np.argmax(output_layer)
 
-            distances.append(distance)
-            x_ends.append(x_end)
-            y_ends.append(y_end)
+            if action == 0 :
+                rotate += 1
+        
+            elif action == 1 :
+                rotate -=1
 
-        normalized_distance = normalization(distances,sensor_length)
+
+            for x_e,y_e in zip(x_ends,y_ends) :
+
+                pygame.draw.line(window,'yellow',[car_x,car_y],[x_e,y_e],width=1)
+            
 
 
-        layer_output = np.dot(weights,normalized_distance) + biases
+            window.blit(rotated_image ,rotated_rect)
+
+        
+            
+            
+
+
+            correct_position = False 
+
+            if  ((car_x- 640)**2/500**2) + ((car_y - 360 )**2/300**2) < 1 and ((car_x - 640)**2/400**2) + ((car_y-  360)**2/200**2) > 1  :
+                correct_position = True
+        
+            if not correct_position :
+                car_x , car_y = 180 , 360
+                rotate = 0
+                fitness = fitness_function(frame_survived)
+                fitness_scores.append(fitness)
+                
+                frame_survived = 0
+                break
+            
+                
+            
+            
+
+            pygame.display.flip()
+
+            clock.tick(60)
+
+        if running == False :
+            break 
     
-
-        activated_values = []
-
-        for i in layer_output :
-            value = activation(i)
-            activated_values.append(value)
-
-        activated_values = np.array(activated_values)
-
-        output_layer = np.dot(output_weight,activated_values) + output_bias
-    
-
-        
-        
-        action = np.argmax(output_layer)
-
-        if action == 0 :
-            rotate += 1
-    
-        elif action == 1 :
-            rotate -=1
-
-
-        for x_e,y_e in zip(x_ends,y_ends) :
-
-            pygame.draw.line(window,'yellow',[car_x,car_y],[x_e,y_e],width=1)
-        
-
-
-        window.blit(rotated_image ,rotated_rect)
-
+    selected_candidate = selection(fitness_scores)
      
-        
-        
-
-
-        correct_position = False 
-
-        if  ((car_x- 640)**2/500**2) + ((car_y - 360 )**2/300**2) < 1 and ((car_x - 640)**2/400**2) + ((car_y-  360)**2/200**2) > 1  :
-            correct_position = True
+    new_generation = cross0ver(selected_candidate,population)
+    population  = new_generation
+    print(f'new population size : {len(population)}')
+    print(f'largest fitness | {max(fitness_scores)}')
+    print(f'average fitness | {sum(fitness_scores)/len(fitness_scores)}')
+    fitness_scores = []
     
-        if not correct_position :
-            car_x , car_y = 180 , 360
-            rotate = 0
-            fitness = fitness_function(frame_survived)
-            fitness_scores.append(fitness)
-            
-            frame_survived = 0
-            break
-        
-            
-        
-        
 
-        pygame.display.flip()
-
-        clock.tick(60)
-
-    if running == False :
-        break 
-
-selected_candidate = selection(fitness_scores)
-
-new_generation = cross0ver(selected_candidate,population)
-print(len(new_generation))
 
 pygame.quit()
 
