@@ -1,7 +1,7 @@
 import numpy as np 
 import random as rd
 import string 
-Target_string = 'hello how are you'
+Target_string = 'nerurodrive'
 
 
 population_szie = 150

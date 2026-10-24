@@ -218,12 +218,21 @@ def cross0ver(selected_candidate,population) :
     return new_generation
 
 
+def lap_completion(current_car_x ,current_car_y , car_y) :
+    if car_y > 360 and current_car_y <= 360 and current_car_x >= 140 and current_car_x <= 240 :
+        return True
+    else :
+        return False
 
+
+        
+
+        
 
 
 def fitness_function(frame_survived) :
 
-    return frame_survived 
+    return frame_survived
     
 
 
@@ -235,12 +244,15 @@ fitness_scores = []
 
 parameters_list = []
 
-
 g = 0
-for i in range(1,6):
+
+
+
+for i in range(1,2):
 
     g += 1 
     print(f'generation no : {g}')
+    car_distance_list = []
     for popu in population:
 
 
@@ -249,10 +261,13 @@ for i in range(1,6):
         biases = popu[1]
         output_weight = popu[2]
         output_bias = popu[3]
-
+        
+        total_distance = 0
+        lap_counter = 0
         while running :
 
             if frame_survived == 3000 :
+                car_distance_list.append(total_distance)
                 car_x,car_y = 180 , 360
                 rotate = 0
                 fitness = fitness_function(frame_survived)
@@ -275,10 +290,11 @@ for i in range(1,6):
 
             pygame.draw.ellipse(window,'black',outer_ellipse_rect)
             pygame.draw.ellipse(window,'green',ellipse_rect)
+            # pygame.draw.line(window,'white',(190,260),(190,460),width=4)
+            pygame.draw.line(window,'white',(140,360),(240,360),width=16)
 
             color = window.get_at((car_x,car_y))
-            
-        
+
             
 
             keys = pygame.key.get_pressed()
@@ -290,10 +306,27 @@ for i in range(1,6):
             #     rotate -= 1 
 
         
-            
+            current_car_x = car_x
+            current_car_y = car_y
 
             car_x -=  speed * math.sin(math.radians(rotate))
             car_y -= speed * math.cos(math.radians(rotate))
+
+            
+            lap_checker = lap_completion(current_car_x,current_car_y,car_x)
+
+            if lap_checker :
+                lap_counter += 1
+
+            
+
+            
+
+
+            distance_travelled = math.sqrt((car_x-current_car_x)**2 + (car_y - current_car_y)**2)
+
+            total_distance += distance_travelled
+
                 
             # if keys[pygame.K_s] :
             #     car_x  += speed * math.sin(math.radians(rotate))
@@ -369,6 +402,8 @@ for i in range(1,6):
                 rotate = 0
                 fitness = fitness_function(frame_survived)
                 fitness_scores.append(fitness)
+                car_distance_list .append(total_distance)
+                total_distance = 0
                 
                 frame_survived = 0
                 break
@@ -383,7 +418,14 @@ for i in range(1,6):
 
         if running == False :
             break 
+
     
+    print(f'Length of distance list | {len(car_distance_list)}')
+    print(f'largest distance list |  {max(car_distance_list)}')
+    print(f'average distance list  {sum(car_distance_list)/len(car_distance_list)}')
+
+
+
     selected_candidate = selection(fitness_scores)
      
     new_generation = cross0ver(selected_candidate,population)
@@ -407,8 +449,11 @@ pygame.quit()
 
             
 
+"""
+i cant undestand
 
 
+"""
 
 
 
