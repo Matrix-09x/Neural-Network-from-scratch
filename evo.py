@@ -1,7 +1,7 @@
 import numpy as np 
 import random as rd
 import string 
-Target_string = 'nerurodrive'
+Target_string = 'neurodrive'
 
 
 population_szie = 150
@@ -125,9 +125,6 @@ while n == False:
 
 
        
-
-
-    
 
  
 

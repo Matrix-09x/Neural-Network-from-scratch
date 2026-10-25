@@ -135,6 +135,7 @@ def cross0ver(selected_candidate,population) :
     new_generation.extend((elite_candiadate_1 , elite_candidate_2))
     new_selected_candidate = selected_candidate[2:]
     random.shuffle(new_selected_candidate)
+    
 
     
 
@@ -219,7 +220,7 @@ def cross0ver(selected_candidate,population) :
 
 
 def lap_completion(current_car_x ,current_car_y , car_y) :
-    if car_y > 360 and current_car_y <= 360 and current_car_x >= 140 and current_car_x <= 240 :
+    if car_y < 385 and current_car_y >= 385 and current_car_x >= 140 and current_car_x <= 240 :
         return True
     else :
         return False
@@ -227,13 +228,17 @@ def lap_completion(current_car_x ,current_car_y , car_y) :
 
         
 
-        
+def fitness_function(frame_survived,distance , lap_counter) :
 
+    norm_frame_survived = frame_survived / 3000
+    norm_distance =  distance/2220
+    norm_lap_counter = lap_counter
+    score = norm_frame_survived *  0.1 + norm_distance * 0.2 + norm_lap_counter * 10
 
-def fitness_function(frame_survived) :
-
-    return frame_survived
+    return score
     
+
+     
 
 
 population = population_func(50)
@@ -244,15 +249,17 @@ fitness_scores = []
 
 parameters_list = []
 
+
 g = 0
 
 
 
-for i in range(1,2):
+for i in range(1,11):
 
     g += 1 
     print(f'generation no : {g}')
     car_distance_list = []
+    lap_counter_list = []
     for popu in population:
 
 
@@ -270,9 +277,14 @@ for i in range(1,2):
                 car_distance_list.append(total_distance)
                 car_x,car_y = 180 , 360
                 rotate = 0
-                fitness = fitness_function(frame_survived)
+                fitness = fitness_function(frame_survived,total_distance,lap_counter)
+                # print(f'fitneess score | {fitness}')
+                # print(f'Lap counter | {lap_counter}')
+                # print(f'distance travelled | {total_distance}')
+                # print(f'frame survived | {frame_survived}')
                 fitness_scores.append(fitness)
                 frame_survived = 0
+                lap_counter_list.append(lap_counter)
                 break
 
             frame_survived += 1
@@ -291,7 +303,7 @@ for i in range(1,2):
             pygame.draw.ellipse(window,'black',outer_ellipse_rect)
             pygame.draw.ellipse(window,'green',ellipse_rect)
             # pygame.draw.line(window,'white',(190,260),(190,460),width=4)
-            pygame.draw.line(window,'white',(140,360),(240,360),width=16)
+            pygame.draw.line(window,'white',(141,385),(242,385),width=16)
 
             color = window.get_at((car_x,car_y))
 
@@ -313,14 +325,14 @@ for i in range(1,2):
             car_y -= speed * math.cos(math.radians(rotate))
 
             
-            lap_checker = lap_completion(current_car_x,current_car_y,car_x)
+            lap_checker = lap_completion(current_car_x,current_car_y,car_y)
+       
 
             if lap_checker :
                 lap_counter += 1
+                # print(lap_counter)
 
-            
 
-            
 
 
             distance_travelled = math.sqrt((car_x-current_car_x)**2 + (car_y - current_car_y)**2)
@@ -400,11 +412,15 @@ for i in range(1,2):
             if not correct_position :
                 car_x , car_y = 180 , 360
                 rotate = 0
-                fitness = fitness_function(frame_survived)
+                fitness = fitness_function(frame_survived,total_distance,lap_counter)
+                # print(f'fitness score | {fitness}')
+                # print(f'lap counter | {lap_counter}')
+                # print(f'ditance travelled  |{total_distance}')
+                # print(f'frame survived | {frame_survived}')
                 fitness_scores.append(fitness)
                 car_distance_list .append(total_distance)
                 total_distance = 0
-                
+                lap_counter_list.append(lap_counter)
                 frame_survived = 0
                 break
             
@@ -420,17 +436,19 @@ for i in range(1,2):
             break 
 
     
-    print(f'Length of distance list | {len(car_distance_list)}')
-    print(f'largest distance list |  {max(car_distance_list)}')
-    print(f'average distance list  {sum(car_distance_list)/len(car_distance_list)}')
+    # print(f'Length of distance list | {len(car_distance_list)}')
+    # print(f'len of lap_counter | {len(lap_counter_list)}')
+    # print(f'largest distance list |  {max(car_distance_list)}')
+    # print(f'average distance list  {sum(car_distance_list)/len(car_distance_list)}')
 
 
 
     selected_candidate = selection(fitness_scores)
      
     new_generation = cross0ver(selected_candidate,population)
+
     population  = new_generation
-    print(f'new population size : {len(population)}')
+    # print(f'new population size : {len(population)}')
     print(f'largest fitness | {max(fitness_scores)}')
     print(f'average fitness | {sum(fitness_scores)/len(fitness_scores)}')
     fitness_scores = []
@@ -447,14 +465,7 @@ pygame.quit()
 # print(fitness_scores)
 
 
-            
-
-"""
-i cant undestand
-
-
-"""
-
+# so how is nn capable of this type of things 
 
 
 
