@@ -18,6 +18,13 @@ clock = pygame.time.Clock()
 car_image = pygame.image.load('car.png')
 scaled_car_image = pygame.transform.scale(car_image,(100,75))
 
+custom_track = pygame.image.load('cutomtrack.png')
+custom_track = pygame.transform.scale(custom_track,(1280,720))
+print(custom_track.get_at((300,200)))
+# print(custom_track.get_size())
+road_mask = pygame.mask.from_threshold(custom_track,(40,40,40,255),(50,50,50,255))
+print(road_mask.get_at((300,200)))
+
 
 running = True 
 
@@ -300,10 +307,9 @@ for i in range(1,11):
             
             window.fill('green')
 
-            pygame.draw.ellipse(window,'black',outer_ellipse_rect)
-            pygame.draw.ellipse(window,'green',ellipse_rect)
+            window.blit(custom_track,(0,0))
             # pygame.draw.line(window,'white',(190,260),(190,460),width=4)
-            pygame.draw.line(window,'white',(141,385),(242,385),width=16)
+            # pygame.draw.line(window,'white',(141,385),(242,385),width=16)
 
             color = window.get_at((car_x,car_y))
 
@@ -357,7 +363,7 @@ for i in range(1,11):
             
             for i in  sensor_angles :
 
-                distance, x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length,window)
+                distance, x_end , y_end = sensor_length_cal(car_x,car_y,rotate+i,sensor_length,custom_track)
 
                 distances.append(distance)
                 x_ends.append(x_end)
@@ -449,8 +455,8 @@ for i in range(1,11):
 
     population  = new_generation
     # print(f'new population size : {len(population)}')
-    print(f'largest fitness | {max(fitness_scores)}')
-    print(f'average fitness | {sum(fitness_scores)/len(fitness_scores)}')
+    # print(f'largest fitness | {max(fitness_scores)}')
+    # print(f'average fitness | {sum(fitness_scores)/len(fitness_scores)}')
     fitness_scores = []
     
 
@@ -468,10 +474,4 @@ pygame.quit()
 # so how is nn capable of this type of things 
 
 
-
-
-
-
-
-    
 
