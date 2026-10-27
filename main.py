@@ -20,10 +20,16 @@ scaled_car_image = pygame.transform.scale(car_image,(100,75))
 
 custom_track = pygame.image.load('cutomtrack.png')
 custom_track = pygame.transform.scale(custom_track,(1280,720))
-print(custom_track.get_at((300,200)))
+# print(custom_track.get_at((640,360)))
+
+
 # print(custom_track.get_size())
 road_mask = pygame.mask.from_threshold(custom_track,(40,40,40,255),(50,50,50,255))
-print(road_mask.get_at((300,200)))
+yellow_mask = pygame.mask.from_threshold(custom_track,(255,200,0,255),(30,30,30,255))
+road_mask.draw(yellow_mask,(0,0))
+# print(f'Road_mask | {road_mask.get_at((592,643))}')
+# print(f'yellow mask | {yellow_mask.get_at((592,643))}')
+# print(custom_track.get_at((592,643)))
 
 
 running = True 
@@ -33,9 +39,9 @@ outer_ellipse_rect = pygame.Rect(0,0,1000,600)
 outer_ellipse_rect.center = (640,360)
 ellipse_rect.center = (640,360)
 
-car_x , car_y = 180 , 360
+car_x , car_y = 630 , 629
 
-rotate = 0
+rotate = 90
 
 
 speed = 2
@@ -55,19 +61,23 @@ def sensor_length_cal(car_x,car_y,rotate,sensorlength,surface) :
         x_end = int(x_end)
         y_end = int(y_end)
 
-        color = surface.get_at((x_end,y_end))
+        # color = surface.get_at((x_end,y_end))
 
-        if color != (0,0,0,255) :
+        if (x_end < 0  or x_end >= 1280) or  y_end < 0 or y_end >= 720 :
+            break 
+        else :
+            cords = road_mask.get_at((x_end,y_end))
+            if cords != 1 :
+                     break
            
-            break
             
             
-
-
         distance += 1
 
 
     return distance , x_end , y_end
+
+
 
         
 
@@ -111,7 +121,7 @@ def selection(fitness_scores) :
     fitness_scores = np.array(fitness_scores)
     sorted_fitness = np.argsort(fitness_scores)[::-1]
     top1 , top2 = sorted_fitness[0] , sorted_fitness[1]
-    selected_candidates.extend([top1,top2])
+    selected_candidates.extend([top1,top2])  
 
     for i in range(1,49):
         random_three = random.sample(range(0,len(fitness_scores)),k=3)
@@ -226,7 +236,7 @@ def cross0ver(selected_candidate,population) :
     return new_generation
 
 
-def lap_completion(current_car_x ,current_car_y , car_y) :
+def lap_completion(current_car_x ,current_car_y , car_x,car_y) :
     if car_y < 385 and current_car_y >= 385 and current_car_x >= 140 and current_car_x <= 240 :
         return True
     else :
@@ -282,8 +292,8 @@ for i in range(1,11):
 
             if frame_survived == 3000 :
                 car_distance_list.append(total_distance)
-                car_x,car_y = 180 , 360
-                rotate = 0
+                car_x,car_y = 630 , 629
+                rotate = 90
                 fitness = fitness_function(frame_survived,total_distance,lap_counter)
                 # print(f'fitneess score | {fitness}')
                 # print(f'Lap counter | {lap_counter}')
@@ -412,12 +422,18 @@ for i in range(1,11):
 
             correct_position = False 
 
-            if  ((car_x- 640)**2/500**2) + ((car_y - 360 )**2/300**2) < 1 and ((car_x - 640)**2/400**2) + ((car_y-  360)**2/200**2) > 1  :
-                correct_position = True
+            # if  ((car_x- 640)**2/500**2) + ((car_y - 360 )**2/300**2) < 1 and ((car_x - 640)**2/400**2) + ((car_y-  360)**2/200**2) > 1  :
+            if (car_x > 0 and car_x < 1280)  and (car_y > 0 and car_y  < 720)  :
+                cords = road_mask.get_at((int(car_x),int(car_y))) 
+                if cords == 1 :
+
+                    correct_position = True
         
+            print(f'Car mask | , {road_mask.get_at((int(car_x),int(car_y)))}')
             if not correct_position :
-                car_x , car_y = 180 , 360
-                rotate = 0
+
+                car_x , car_y = 630 , 629
+                rotate = 90
                 fitness = fitness_function(frame_survived,total_distance,lap_counter)
                 # print(f'fitness score | {fitness}')
                 # print(f'lap counter | {lap_counter}')
@@ -463,7 +479,6 @@ for i in range(1,11):
 
 pygame.quit()
 
-            
 
 
 
@@ -471,7 +486,7 @@ pygame.quit()
 # print(fitness_scores)
 
 
-# so how is nn capable of this type of things 
+
 
 
 
