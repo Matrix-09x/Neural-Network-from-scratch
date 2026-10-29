@@ -39,7 +39,7 @@ outer_ellipse_rect = pygame.Rect(0,0,1000,600)
 outer_ellipse_rect.center = (640,360)
 ellipse_rect.center = (640,360)
 
-car_x , car_y = 630 , 629
+car_x , car_y = 577 , 629
 
 rotate = 90
 
@@ -115,7 +115,7 @@ def population_func(number) :
     return population_parameter_list
 
 
-def selection(fitness_scores) :
+def selection(fitness_scores,population) :
     selected_candidates = []
 
     fitness_scores = np.array(fitness_scores)
@@ -123,7 +123,7 @@ def selection(fitness_scores) :
     top1 , top2 = sorted_fitness[0] , sorted_fitness[1]
     selected_candidates.extend([top1,top2])  
 
-    for i in range(1,49):
+    for i in range(1,population-1):
         random_three = random.sample(range(0,len(fitness_scores)),k=3)
         best_candidate = max(random_three,key=lambda index :fitness_scores[index])
         selected_candidates.append(best_candidate)
@@ -168,53 +168,85 @@ def cross0ver(selected_candidate,population) :
 
             child_weight = []
             second_child_weight = []
+            blending_per = random.uniform(0,1)
             for a , b  in zip(weights_a,weights_b) :
-                random_point = random.randint(1,6)
-                partition_a = a[random_point:]
-                partition_b = b[:random_point]
-                second_partion_a = a[:random_point]
-                second_partion_b = b[random_point:]
+                child_a_array = []
+                child_b_array = []
 
-                child = np.concatenate((partition_a,partition_b))
-                second_child = np.concatenate((second_partion_a,second_partion_b))
+                for i,j in  zip(a,b) :
+                    
+                    child_a_value = (blending_per * i) + ((1-blending_per) * j)
+                    child_b_value = ((1-blending_per) * i) + (blending_per * j)
+                    child_a_array.append(child_a_value)
+                    child_b_array.append(child_b_value)
+
+                child_a_array = np.array(child_a_array)
+                child_b_array = np.array(child_b_array)
+
+
+                child = child_a_array
+                second_child = child_b_array
                 child_weight.append(child)
                 second_child_weight.append(second_child)
 
             child_weight = np.array(child_weight)
             second_child_weight = np.array(second_child_weight)
+            
+   
+            child_a = []
+            child_b = []
+ 
+            for a,b in zip(bias_a,bias_b) :
+                child_a_value = (blending_per * a) + ((1-blending_per) * b )
+                child_b_value = (blending_per * b) + ((1-blending_per) * a)
+                child_a.append(child_a_value)
+                child_b.append(child_b_value)
 
+            child_a = np.array(child_a)
+            child_b = np.array(child_b)
 
-            random_point = random.randint(1,7)
-            partition_a = bias_a[random_point:]
-            second_partion_a = bias_a[:random_point]
-            partition_b = bias_b[:random_point]
-            second_partion_b = bias_b[random_point:]
-            child_bias = np.concatenate((partition_a,partition_b))
-            second_child_bias = np.concatenate((second_partion_a,second_partion_b))
+            child_bias = child_a
+            second_child_bias = child_b
 
             second_child_output_weight = []
             child_output_weights = []
+           
             for a,b in zip(output_weights_a,output_weights_b) :
-                random_point = random.randint(1,7)
-                partition_a = a[random_point:]
-                second_partion_a = a[:random_point]
-                partition_b = b[:random_point]
-                second_partion_b = b[random_point:]
-                child = np.concatenate((partition_a,partition_b))
-                second_child = np.concatenate((second_partion_a,second_partion_b))
-                child_output_weights.append(child)
-                second_child_output_weight.append(second_child)
 
-            child_output_weights = np.array((child_output_weights))
-            second_child_output_weight = np.array((second_child_output_weight))
+                child_a = []
+                child_b = []
+                for i,j in zip(a,b) :
+                    child_a_value = blending_per * i + (1-blending_per) * j
+                    child_b_value =blending_per * j+ (1-blending_per) *  i
+                    child_a.append(child_a_value)
+                    child_b.append(child_b_value)
 
-            random_point = random.randint(1,2) 
-            partition_a = output_bias_a[random_point:]
-            second_partion_a = output_bias_a[:random_point]
-            partition_b = output_bias_b[:random_point]
-            second_partion_b = output_bias_b[random_point:]
-            child_output_bias = np.concatenate((partition_a,partition_b))
-            second_child_output_bias = np.concatenate((second_partion_a,second_partion_b))
+                child_a = np.array(child_a)
+                child_b = np.array(child_b)
+
+                child_output_weights.append(child_a)
+                second_child_output_weight.append(child_b)
+
+            child_output_weights = np.array(child_output_weights)
+            second_child_output_weight = np.array(second_child_output_weight)
+
+       
+            child_a = []
+            child_b = []
+
+            for a,b in zip(output_bias_a,output_bias_b) :
+                child_a_value = blending_per * a + (1-blending_per) * b
+                child_b_value = blending_per * b + (1-blending_per) * a
+                child_a.append(child_a_value)
+                child_b.append(child_b_value)
+
+            child_a  = np.array(child_a)
+            child_b = np.array(child_b)
+
+            child_output_bias = child_a
+            second_child_output_bias = child_b
+            
+                
             child_parameters = [child_weight,child_bias,child_output_weights,child_output_bias]
             second_child_parameters =  [second_child_weight,second_child_bias,second_child_output_weight,second_child_output_bias]
 
@@ -237,7 +269,8 @@ def cross0ver(selected_candidate,population) :
 
 
 def lap_completion(current_car_x ,current_car_y , car_x,car_y) :
-    if car_y < 385 and current_car_y >= 385 and current_car_x >= 140 and current_car_x <= 240 :
+
+    if car_x <  593 and current_car_x >= 593 and current_car_y >= 599 and current_car_y <= 665 :
         return True
     else :
         return False
@@ -258,7 +291,7 @@ def fitness_function(frame_survived,distance , lap_counter) :
      
 
 
-population = population_func(50)
+population = population_func(100)
 
 frame_survived = 0
 
@@ -290,19 +323,7 @@ for i in range(1,11):
         lap_counter = 0
         while running :
 
-            if frame_survived == 3000 :
-                car_distance_list.append(total_distance)
-                car_x,car_y = 630 , 629
-                rotate = 90
-                fitness = fitness_function(frame_survived,total_distance,lap_counter)
-                # print(f'fitneess score | {fitness}')
-                # print(f'Lap counter | {lap_counter}')
-                # print(f'distance travelled | {total_distance}')
-                # print(f'frame survived | {frame_survived}')
-                fitness_scores.append(fitness)
-                frame_survived = 0
-                lap_counter_list.append(lap_counter)
-                break
+       
 
             frame_survived += 1
 
@@ -341,12 +362,13 @@ for i in range(1,11):
             car_y -= speed * math.cos(math.radians(rotate))
 
             
-            lap_checker = lap_completion(current_car_x,current_car_y,car_y)
+            lap_checker = lap_completion(current_car_x,current_car_y,car_x,car_y)
+            print(current_car_x,car_x,current_car_y,car_x)
        
 
             if lap_checker :
                 lap_counter += 1
-                # print(lap_counter)
+                print(lap_counter)
 
 
 
@@ -429,10 +451,9 @@ for i in range(1,11):
 
                     correct_position = True
         
-            print(f'Car mask | , {road_mask.get_at((int(car_x),int(car_y)))}')
             if not correct_position :
 
-                car_x , car_y = 630 , 629
+                car_x , car_y = 577 , 629
                 rotate = 90
                 fitness = fitness_function(frame_survived,total_distance,lap_counter)
                 # print(f'fitness score | {fitness}')
@@ -458,35 +479,23 @@ for i in range(1,11):
             break 
 
     
-    # print(f'Length of distance list | {len(car_distance_list)}')
-    # print(f'len of lap_counter | {len(lap_counter_list)}')
-    # print(f'largest distance list |  {max(car_distance_list)}')
-    # print(f'average distance list  {sum(car_distance_list)/len(car_distance_list)}')
+  
 
 
-
-    selected_candidate = selection(fitness_scores)
+    selected_candidate = selection(fitness_scores,100)
      
     new_generation = cross0ver(selected_candidate,population)
 
     population  = new_generation
     # print(f'new population size : {len(population)}')
-    # print(f'largest fitness | {max(fitness_scores)}')
-    # print(f'average fitness | {sum(fitness_scores)/len(fitness_scores)}')
+    print(f'Best fitness | {max(fitness_scores)}')
+    print(f'Average fitness | {sum(fitness_scores)/len(fitness_scores)}')
+    print(f'Maximum distance | {max(car_distance_list)}')
+    print(f'lap count {lap_counter_list}')
+
     fitness_scores = []
     
 
 
 pygame.quit()
-
-
-
-
-    
-# print(fitness_scores)
-
-
-
-
-
 
