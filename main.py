@@ -11,6 +11,11 @@ import random
 
 pygame .init()
 
+
+font  = pygame.font.Font(None,40)
+
+
+font_render = font.render('NEURAL NETWORK',True,(80,210,230))
 window = pygame.display.set_mode((1280,720))
 
 clock = pygame.time.Clock()
@@ -365,8 +370,10 @@ for i in range(1,11):
             
             window.fill('green')
 
-            window.blit(custom_track,(0,0))
+            window.blit(displat_track,(0,107))
             pygame.draw.rect(window,(20,22,30),(900,0,380,720))
+            window.blit(font_render,(968,30))
+
 
                 
             color = window.get_at((car_x,car_y))
@@ -412,7 +419,7 @@ for i in range(1,11):
 
             rotated_rect = rotated_image.get_rect()
 
-            rotated_rect.center =  (car_x , car_y)
+            rotated_rect.center =  (car_x* 0.703125 , car_y * 0.703125 + 107)
 
             distances = []
             x_ends = []
@@ -439,8 +446,12 @@ for i in range(1,11):
                 activated_values.append(value)
 
             activated_values = np.array(activated_values)
-
+            
             output_layer = np.dot(output_weight,activated_values) + output_bias
+
+
+            
+
             for i in input_cords :
                 for h in hidden_cords :
                     pygame.draw.line(window,(100,100,100),i,h,1)
@@ -483,7 +494,7 @@ for i in range(1,11):
 
             for x_e,y_e in zip(x_ends,y_ends) :
 
-                pygame.draw.line(window,'yellow',[car_x,car_y],[x_e,y_e],width=1)
+                pygame.draw.line(window,'yellow',[car_x * 0.703125,car_y*0.703125 + 107],[x_e*0.703125,y_e*0.703125 + 107],width=1)
             
 
 
