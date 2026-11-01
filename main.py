@@ -8,6 +8,7 @@ import math
 import random
 
 
+
 pygame .init()
 
 window = pygame.display.set_mode((1280,720))
@@ -20,6 +21,7 @@ scaled_car_image = pygame.transform.scale(car_image,(100,75))
 
 custom_track = pygame.image.load('cutomtrack.png')
 custom_track = pygame.transform.scale(custom_track,(1280,720))
+displat_track = pygame.transform.smoothscale(custom_track,(900,506))
 # print(custom_track.get_at((640,360)))
 
 
@@ -49,6 +51,10 @@ speed = 2
 sensor_length  = 150 
 
 sensor_angles = [0,-90,-60,-30,30,60,90]
+
+input_cords = [(940,150),(940,220),(940,290),(940,360),(940,430),(940,500),(940,570)]
+hidden_cords =[(1060,150),(1060,210),(1060,270),(1060,330),(1050,390),(1060,450),(1060,510),(1060,570)]
+output_cords = [(1190,260),(1190,360),(1190,460)]
 
 
 def sensor_length_cal(car_x,car_y,rotate,sensorlength,surface) :
@@ -136,7 +142,7 @@ def mutation(paramerters) :
         for i in np.ndindex(metrics.shape) :
             per_parameter = random.uniform(0,1)
             if per_parameter <= 0.05 :
-                replaced_number = random.uniform(-1,1)
+                replaced_number = metrics[i] + random.uniform(-0.1,0.1)
                 metrics[i] = replaced_number
 
     return paramerters
@@ -191,7 +197,7 @@ def cross0ver(selected_candidate,population) :
 
             child_weight = np.array(child_weight)
             second_child_weight = np.array(second_child_weight)
-            
+
    
             child_a = []
             child_b = []
@@ -288,7 +294,29 @@ def fitness_function(frame_survived,distance , lap_counter) :
     return score
     
 
-     
+
+def cal_population_diversity(population) :
+
+    population_diff = []
+    for ind,cars in enumerate(population) :
+        for index, sec_car in enumerate(population) :
+            car_diff = []
+            if index >  ind :
+                for  metrics_a,metrics_b in  zip(cars,sec_car) : 
+                    diff =   abs(metrics_a - metrics_b)
+                    diff = diff.flatten()
+                    car_diff.append(diff)
+
+                car_diff = np.concatenate(car_diff)
+                avg = np.mean(car_diff)
+
+                population_diff.append(avg)
+
+    population_diff = np.array(population_diff)
+   
+    population_avg = np.mean(population_diff)
+
+    return population_avg
 
 
 population = population_func(100)
@@ -334,17 +362,14 @@ for i in range(1,11):
         
 
 
-        
             
             window.fill('green')
 
             window.blit(custom_track,(0,0))
-            # pygame.draw.line(window,'white',(190,260),(190,460),width=4)
-            # pygame.draw.line(window,'white',(141,385),(242,385),width=16)
+            pygame.draw.rect(window,(20,22,30),(900,0,380,720))
 
+                
             color = window.get_at((car_x,car_y))
-
-            
 
             keys = pygame.key.get_pressed()
 
@@ -363,7 +388,7 @@ for i in range(1,11):
 
             
             lap_checker = lap_completion(current_car_x,current_car_y,car_x,car_y)
-            print(current_car_x,car_x,current_car_y,car_x)
+
        
 
             if lap_checker :
@@ -416,6 +441,33 @@ for i in range(1,11):
             activated_values = np.array(activated_values)
 
             output_layer = np.dot(output_weight,activated_values) + output_bias
+            for i in input_cords :
+                for h in hidden_cords :
+                    pygame.draw.line(window,(100,100,100),i,h,1)
+
+
+            for h in hidden_cords :
+                for o in output_cords :
+                    pygame.draw.line(window,(100,100,100),h,o,1)
+        
+
+            for i,n in zip(input_cords,normalized_distance) :
+                brightness = int(n * 255)
+                pygame.draw.circle(window,(0,0,brightness),i,12)
+
+            for i,a in zip(hidden_cords,activated_values) :
+                acti = min(a,1)
+                brightness = int(acti * 255)
+                pygame.draw.circle(window,(brightness,0,brightness),i,12)
+
+            selected = np.argmax(output_layer)
+            for index,i in enumerate(output_cords) :
+                if index == selected :
+                    pygame.draw.circle(window,(0,255,0),i,12)
+                else :
+                    pygame.draw.circle(window,(0,80,0),i,12)
+                
+           
         
 
             
@@ -438,8 +490,6 @@ for i in range(1,11):
             window.blit(rotated_image ,rotated_rect)
 
         
-            
-            
 
 
             correct_position = False 
@@ -480,16 +530,22 @@ for i in range(1,11):
 
     
   
-
+    diversity = cal_population_diversity(population)
 
     selected_candidate = selection(fitness_scores,100)
      
     new_generation = cross0ver(selected_candidate,population)
 
+
+
+
+    
     population  = new_generation
-    # print(f'new population size : {len(population)}')
+ 
+    print(f'Population size| {len(population)}')
     print(f'Best fitness | {max(fitness_scores)}')
     print(f'Average fitness | {sum(fitness_scores)/len(fitness_scores)}')
+    print(f'population diversity | {diversity}')
     print(f'Maximum distance | {max(car_distance_list)}')
     print(f'lap count {lap_counter_list}')
 
