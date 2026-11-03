@@ -9,4 +9,5 @@
 # bias = [1,2,3]
 # output = np.dot(weights,inputs) + bias
 
-print(255 * 0.5)
+# print(255 * 0.5)
+

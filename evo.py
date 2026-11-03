@@ -1,7 +1,7 @@
 import numpy as np 
 import random as rd
 import string 
-Target_string = 'neurodive'
+Target_string = 'neurodrive'
 
 
 population_szie = 150

@@ -14,8 +14,12 @@ pygame .init()
 
 font  = pygame.font.Font(None,40)
 
-
 font_render = font.render('NEURAL NETWORK',True,(80,210,230))
+
+font_2 = pygame.font.Font(None,24)
+font_2_render = font_2.render('7 INPUTS --> 8 HIDDEN --> 3 OUTPUTS',True,(150,180,195))
+font_3 = pygame.font.Font(None,22)
+font_4 = pygame.font.Font(None,22)
 window = pygame.display.set_mode((1280,720))
 
 clock = pygame.time.Clock()
@@ -337,9 +341,11 @@ g = 0
 
 
 
+
 for i in range(1,11):
 
     g += 1 
+    font_3_render = font_3.render(f'Generation {g}',True,(150,180,195))
     print(f'generation no : {g}')
     car_distance_list = []
     lap_counter_list = []
@@ -372,7 +378,9 @@ for i in range(1,11):
 
             window.blit(displat_track,(0,107))
             pygame.draw.rect(window,(20,22,30),(900,0,380,720))
-            window.blit(font_render,(968,30))
+            window.blit(font_render,(958,30))
+            window.blit(font_2_render,(950 , 75))
+            window.blit(font_3_render,(950,109))
 
 
                 
