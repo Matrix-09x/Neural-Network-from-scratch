@@ -19,7 +19,9 @@ font_render = font.render('NEURAL NETWORK',True,(80,210,230))
 font_2 = pygame.font.Font(None,24)
 font_2_render = font_2.render('7 INPUTS --> 8 HIDDEN --> 3 OUTPUTS',True,(150,180,195))
 font_3 = pygame.font.Font(None,22)
-font_4 = pygame.font.Font(None,22)
+font_4 = pygame.font.Font(None,20)
+font_5 = pygame.font.Font(None,20)
+font_6 = pygame.font.Font(None,20)
 window = pygame.display.set_mode((1280,720))
 
 clock = pygame.time.Clock()
@@ -380,7 +382,7 @@ for i in range(1,11):
             pygame.draw.rect(window,(20,22,30),(900,0,380,720))
             window.blit(font_render,(958,30))
             window.blit(font_2_render,(950 , 75))
-            window.blit(font_3_render,(950,109))
+            window.blit(font_3_render,(910,105))
 
 
                 
@@ -395,7 +397,7 @@ for i in range(1,11):
             #     rotate -= 1 
 
         
-            current_car_x = car_x
+            current_car_x = car_x 
             current_car_y = car_y
 
             car_x -=  speed * math.sin(math.radians(rotate))
@@ -417,6 +419,20 @@ for i in range(1,11):
 
             total_distance += distance_travelled
 
+            temp_fitness = fitness_function(frame_survived,total_distance,lap_counter)
+            font_4_render = font_4.render(f'Current fitness score : {temp_fitness:.3f}',True,(100,220,140))
+            if fitness_scores == [] :
+                font_5_render = font_5.render(f'Best fitness : -----',True,(100,220,140))
+                font_6_render = font_6.render(f'Average fitness : -----',True,(100,220,140))
+            else :
+                font_5_render = font_5.render(f'Best fitness : {max(fitness_scores):.3f}',True,(100,220,140))
+                font_6_render = font_6.render(f'Average fitness : {sum(fitness_scores)/len(fitness_scores):.3f}',True,(100,220,140))
+                                                                                               
+                                                                                                          
+
+            window.blit(font_4_render,(910,600))
+            window.blit(font_5_render,(1156,600))
+            window.blit(font_6_render,(910,620))
                 
             # if keys[pygame.K_s] :
             #     car_x  += speed * math.sin(math.radians(rotate))
