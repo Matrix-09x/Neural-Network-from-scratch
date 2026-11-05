@@ -22,13 +22,14 @@ font_3 = pygame.font.Font(None,22)
 font_4 = pygame.font.Font(None,20)
 font_5 = pygame.font.Font(None,20)
 font_6 = pygame.font.Font(None,20)
+
 window = pygame.display.set_mode((1280,720))
 
 clock = pygame.time.Clock()
 
 
 car_image = pygame.image.load('car.png')
-scaled_car_image = pygame.transform.scale(car_image,(100,75))
+scaled_car_image = pygame.transform.scale(car_image,(70,51))
 
 custom_track = pygame.image.load('cutomtrack.png')
 custom_track = pygame.transform.scale(custom_track,(1280,720))
@@ -298,7 +299,7 @@ def lap_completion(current_car_x ,current_car_y , car_x,car_y) :
 def fitness_function(frame_survived,distance , lap_counter) :
 
     norm_frame_survived = frame_survived / 3000
-    norm_distance =  distance/2220
+    norm_distance =  distance/222
     norm_lap_counter = lap_counter
     score = norm_frame_survived *  0.1 + norm_distance * 0.2 + norm_lap_counter * 10
 
@@ -344,6 +345,7 @@ g = 0
 
 
 
+
 for i in range(1,11):
 
     g += 1 
@@ -379,7 +381,7 @@ for i in range(1,11):
             window.fill('green')
 
             window.blit(displat_track,(0,107))
-            pygame.draw.rect(window,(20,22,30),(900,0,380,720))
+            pygame.draw.rect(window,(10,14,28),(900,0,380,720))
             window.blit(font_render,(958,30))
             window.blit(font_2_render,(950 , 75))
             window.blit(font_3_render,(910,105))
@@ -474,21 +476,41 @@ for i in range(1,11):
             output_layer = np.dot(output_weight,activated_values) + output_bias
 
 
-            
-
-            for i in input_cords :
-                for h in hidden_cords :
-                    pygame.draw.line(window,(100,100,100),i,h,1)
 
 
-            for h in hidden_cords :
-                for o in output_cords :
-                    pygame.draw.line(window,(100,100,100),h,o,1)
+            for index,i in enumerate(input_cords):
+                for index_2, h in enumerate(hidden_cords) :
+                    weightss = weights[index_2][index]
+                    weightss_mag= abs(weights[index_2][index])
+                    brightness = int(weightss_mag*255)
+                    
+                    if weightss > 0 :
+                        pygame.draw.line(window,(0,brightness,brightness),i,h,1)
+                    elif weightss < 0 :
+                        pygame.draw.line(window,(int(brightness * 0.7),0,brightness),i,h,1)
+                    else :
+                        pygame.draw.line(window,(65,75,95),i,h,1)
+
+
+            for index,h in enumerate(hidden_cords) :
+                for index_2,o in enumerate(output_cords) :
+                    out_weights = output_weight[index_2][index]
+                    out_weightss_mag = abs(output_weight[index_2][index])
+                    brightness = int(out_weightss_mag*255)
+
+                    if out_weights > 0 :
+                        pygame.draw.line(window,(0,brightness,brightness),h,o,1)
+
+                    elif out_weights < 0 :
+                        pygame.draw.line(window,(int(brightness * 0.7),0,brightness),h,o,1)
+
+                    else :
+                        pygame.draw.line(window,(65,75,95),h,o,1)
         
 
             for i,n in zip(input_cords,normalized_distance) :
                 brightness = int(n * 255)
-                pygame.draw.circle(window,(0,0,brightness),i,12)
+                pygame.draw.circle(window,(int(brightness * 0.08),int(brightness*0.39),brightness ),i,12)
 
             for i,a in zip(hidden_cords,activated_values) :
                 acti = min(a,1)
@@ -580,6 +602,7 @@ for i in range(1,11):
     print(f'Population size| {len(population)}')
     print(f'Best fitness | {max(fitness_scores)}')
     print(f'Average fitness | {sum(fitness_scores)/len(fitness_scores)}')
+    print(f'Fitness socres Standard Deviation | {np.std(fitness_scores)}')
     print(f'population diversity | {diversity}')
     print(f'Maximum distance | {max(car_distance_list)}')
     print(f'lap count {lap_counter_list}')
