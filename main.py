@@ -510,15 +510,21 @@ for i in range(1,11):
 
             for i,n in zip(input_cords,normalized_distance) :
                 brightness = int(n * 255)
-                pygame.draw.circle(window,(int(brightness * 0.08),int(brightness*0.39),brightness ),i,12)
+                pygame.draw.circle(window,(0,110,145),i,19)
+                pygame.draw.circle(window,(0,200,230),i,14,width=2)
+                pygame.draw.circle(window,(int(brightness * 0.08),int(brightness*0.39),brightness),i,12)
 
             for i,a in zip(hidden_cords,activated_values) :
                 acti = min(a,1)
                 brightness = int(acti * 255)
+                pygame.draw.circle(window,(145,45,210),i,19)
+                pygame.draw.circle(window,(190,70,255),i,15,width=3)
                 pygame.draw.circle(window,(brightness,0,brightness),i,12)
 
             selected = np.argmax(output_layer)
             for index,i in enumerate(output_cords) :
+                pygame.draw.circle(window,(0,100,45),i,19)
+                pygame.draw.circle(window,(0,200,100),i,14,width=2)
                 if index == selected :
                     pygame.draw.circle(window,(0,255,0),i,12)
                 else :
