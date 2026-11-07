@@ -22,6 +22,7 @@ font_3 = pygame.font.Font(None,22)
 font_4 = pygame.font.Font(None,20)
 font_5 = pygame.font.Font(None,20)
 font_6 = pygame.font.Font(None,20)
+font_7 = pygame.font.Font(None,22)
 
 window = pygame.display.set_mode((1280,720))
 
@@ -293,8 +294,7 @@ def lap_completion(current_car_x ,current_car_y , car_x,car_y) :
     else :
         return False
 
-
-        
+   
 
 def fitness_function(frame_survived,distance , lap_counter) :
 
@@ -346,14 +346,16 @@ g = 0
 
 
 
-for i in range(1,11):
+for i in range(1,51):
 
     g += 1 
     font_3_render = font_3.render(f'Generation {g}',True,(150,180,195))
     print(f'generation no : {g}')
     car_distance_list = []
     lap_counter_list = []
-    for popu in population:
+
+    for index,popu in enumerate(population):
+        font_7_render = font_7.render(f'Car {index+1} / {len(population)}',True,(150,180,195))
 
 
 
@@ -366,7 +368,7 @@ for i in range(1,11):
         lap_counter = 0
         while running :
 
-       
+            
 
             frame_survived += 1
 
@@ -375,8 +377,7 @@ for i in range(1,11):
                     running = False
 
         
-
-
+            
             
             window.fill('green')
 
@@ -385,6 +386,7 @@ for i in range(1,11):
             window.blit(font_render,(958,30))
             window.blit(font_2_render,(950 , 75))
             window.blit(font_3_render,(910,105))
+            window.blit(font_7_render,(1190,105))
 
 
                 
@@ -392,12 +394,7 @@ for i in range(1,11):
 
             keys = pygame.key.get_pressed()
 
-            # if keys[pygame.K_a] :
-            #     rotate += 1
-
-            # if keys[pygame.K_d] :
-            #     rotate -= 1 
-
+     
         
             current_car_x = car_x 
             current_car_y = car_y
@@ -436,9 +433,7 @@ for i in range(1,11):
             window.blit(font_5_render,(1156,600))
             window.blit(font_6_render,(910,620))
                 
-            # if keys[pygame.K_s] :
-            #     car_x  += speed * math.sin(math.radians(rotate))
-            #     car_y += speed  * math.cos(math.radians(rotate))
+      
             
 
             rotated_image = pygame.transform.rotate(scaled_car_image,rotate)
