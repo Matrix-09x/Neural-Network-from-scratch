@@ -8,7 +8,6 @@ import math
 import random
 
 
-
 pygame .init()
 
 
@@ -17,7 +16,7 @@ font  = pygame.font.Font(None,40)
 font_render = font.render('NEURAL NETWORK',True,(80,210,230))
 
 font_2 = pygame.font.Font(None,24)
-font_2_render = font_2.render('7 INPUTS --> 8 HIDDEN --> 3 OUTPUTS',True,(150,180,195))
+font_2_render = font_2.render('7 INPUTS --> 8 HIDDEN --> 5 OUTPUTS',True,(150,180,195))
 font_3 = pygame.font.Font(None,22)
 font_4 = pygame.font.Font(None,20)
 font_5 = pygame.font.Font(None,20)
@@ -30,7 +29,7 @@ clock = pygame.time.Clock()
 
 
 car_image = pygame.image.load('car.png')
-scaled_car_image = pygame.transform.scale(car_image,(70,51))
+scaled_car_image = pygame.transform.scale(car_image,(60,41))
 
 custom_track = pygame.image.load('cutomtrack.png')
 custom_track = pygame.transform.scale(custom_track,(1280,720))
@@ -127,8 +126,8 @@ def population_func(number) :
     for i in range(1,number+1) :
         weights = np.random.rand(8,7)
         biases = np.random.rand(8)
-        output_weight = np.random.rand(3,8)
-        output_bias = np.random.rand(3)
+        output_weight = np.random.rand(5,8)
+        output_bias = np.random.rand(5)
         population_parameter_list.append([weights,biases,output_weight,output_bias])
 
     return population_parameter_list
@@ -346,6 +345,7 @@ g = 0
 
 
 
+
 for i in range(1,51):
 
     g += 1 
@@ -471,6 +471,8 @@ for i in range(1,51):
             output_layer = np.dot(output_weight,activated_values) + output_bias
 
 
+            output_activated_values = 1/(1+ np.exp(-output_layer))
+            print(output_activated_values)
 
 
             for index,i in enumerate(input_cords):

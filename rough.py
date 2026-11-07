@@ -22,12 +22,12 @@ weights = np.array([
 
 biases = [3,4,5,1.2]
 
-layer1_output = np.dot(inputs , weights.T) + biases 
+layer1_output = np.dot(inputs , weights.T) 
 
 weights_2 = np.array([
-    [2,3,4.5,5],
-    [3.4,5,2.1,5.6],
-    [3.3,6,5.3,3.7]
+    [3.4,4.5,3,2.3],
+    [2,3,4,7.1],
+    [2.3,4,1,2]
 ])
 
 biases_2 = [3.4,5,2,4]
