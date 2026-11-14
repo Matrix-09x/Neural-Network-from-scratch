@@ -16,7 +16,7 @@ font  = pygame.font.Font(None,40)
 font_render = font.render('NEURAL NETWORK',True,(80,210,230))
 
 font_2 = pygame.font.Font(None,24)
-font_2_render = font_2.render('7 INPUTS --> 8 HIDDEN --> 5 OUTPUTS',True,(150,180,195))
+font_2_render = font_2.render('8 INPUTS --> 8 HIDDEN --> 4 OUTPUTS',True,(150,180,195))
 font_3 = pygame.font.Font(None,22)
 font_4 = pygame.font.Font(None,20)
 font_5 = pygame.font.Font(None,20)
@@ -58,7 +58,7 @@ car_x , car_y = 577 , 629
 rotate = 90
 
 
-speed = 2
+
 
 sensor_length  = 150 
 
@@ -124,10 +124,10 @@ def activation(output) :
 def population_func(number) :
     population_parameter_list = []
     for i in range(1,number+1) :
-        weights = np.random.rand(8,7)
+        weights = np.random.uniform(-1,1,(8,8))
         biases = np.random.rand(8)
-        output_weight = np.random.rand(5,8)
-        output_bias = np.random.rand(5)
+        output_weight = np.random.uniform(-1,1,(4,8))
+        output_bias = np.random.rand(4)
         population_parameter_list.append([weights,biases,output_weight,output_bias])
 
     return population_parameter_list
@@ -342,7 +342,11 @@ parameters_list = []
 g = 0
 
 
-
+acceleration = 0.1
+max_speed = 5 
+friction = 0.99
+max_braking  = 0.2
+max_steering = 3
 
 
 
@@ -353,8 +357,10 @@ for i in range(1,51):
     print(f'generation no : {g}')
     car_distance_list = []
     lap_counter_list = []
+    
 
     for index,popu in enumerate(population):
+        velocity = 0 
         font_7_render = font_7.render(f'Car {index+1} / {len(population)}',True,(150,180,195))
 
 
@@ -399,8 +405,8 @@ for i in range(1,51):
             current_car_x = car_x 
             current_car_y = car_y
 
-            car_x -=  speed * math.sin(math.radians(rotate))
-            car_y -= speed * math.cos(math.radians(rotate))
+            car_x -=  velocity * math.sin(math.radians(rotate))
+            car_y -= velocity * math.cos(math.radians(rotate))
 
             
             lap_checker = lap_completion(current_car_x,current_car_y,car_x,car_y)
@@ -410,6 +416,7 @@ for i in range(1,51):
             if lap_checker :
                 lap_counter += 1
                 print(lap_counter)
+
 
 
 
@@ -454,27 +461,53 @@ for i in range(1,51):
                 x_ends.append(x_end)
                 y_ends.append(y_end)
 
-            normalized_distance = normalization(distances,sensor_length)
+            normalized_inputs = normalization(distances,sensor_length)
+            input_velocity = velocity/max_speed
+            normalized_inputs = np.append(normalized_inputs,input_velocity)
+          
 
 
-            layer_output = np.dot(weights,normalized_distance) + biases
+            layer_output = np.dot(weights,normalized_inputs) + biases
+         
         
 
             activated_values = []
 
-            for i in layer_output :
+            for index,i in enumerate(layer_output):
+               
                 value = activation(i)
                 activated_values.append(value)
 
             activated_values = np.array(activated_values)
-            
+        
             output_layer = np.dot(output_weight,activated_values) + output_bias
 
-
+            
             output_activated_values = 1/(1+ np.exp(-output_layer))
-            print(output_activated_values)
+        
 
+            drive = output_activated_values[2] - output_activated_values[3]
+          
+   
+            
+            act_acclearation = drive * acceleration
+            velocity = velocity + act_acclearation
+ 
+            velocity = velocity * 0.99
+            velocity  = min(5,velocity)
+            velocity = max(velocity,-5)
+        
 
+            
+        
+      
+            steering = output_activated_values[0] - output_activated_values[1]
+            rotation_change = max_steering * steering 
+            rotate = rotate + rotation_change
+
+                
+
+            
             for index,i in enumerate(input_cords):
                 for index_2, h in enumerate(hidden_cords) :
                     weightss = weights[index_2][index]
@@ -505,7 +538,7 @@ for i in range(1,51):
                         pygame.draw.line(window,(65,75,95),h,o,1)
         
 
-            for i,n in zip(input_cords,normalized_distance) :
+            for i,n in zip(input_cords,normalized_inputs) :
                 brightness = int(n * 255)
                 pygame.draw.circle(window,(0,110,145),i,19)
                 pygame.draw.circle(window,(0,200,230),i,14,width=2)
@@ -529,16 +562,7 @@ for i in range(1,51):
                 
            
         
-
-            
-            
-            action = np.argmax(output_layer)
-
-            if action == 0 :
-                rotate += 1
-        
-            elif action == 1 :
-                rotate -=1
+   
 
 
             for x_e,y_e in zip(x_ends,y_ends) :
