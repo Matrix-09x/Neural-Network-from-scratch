@@ -47,3 +47,4 @@ print(weights_3)
 
 layer2_output = np.dot(layer1_output,weights_2.T) + biases_2
 
+

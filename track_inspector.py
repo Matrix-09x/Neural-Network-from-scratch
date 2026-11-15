@@ -9,18 +9,12 @@ track = pygame.image.load('cutomtrack.png')
 track = pygame.transform.scale(track,(1280,720))
 display_tract = pygame.transform.smoothscale(track,(900,506))
 
-car_image = pygame.image.load('car.png')
-scaled_car_image = pygame.transform.scale(car_image,(60,41))
-road_mask = pygame.mask.from_threshold(track,(40,40,40,255),(50,50,50,255))
 
-car_x , car_y = 577,629
 
-rotate = 90
-speed = 2
+
 clock = pygame.time.Clock()
 
-acceleration = 0
-max_speed = 4
+
 
 
 running = True
@@ -32,34 +26,31 @@ while running :
 
         elif event.type == pygame.KEYDOWN :
             if  event.key == pygame.K_q :
-                running = False 
+                running = False  
 
-    keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_a] :
-        rotate += 1
-
-    if keys[pygame.K_d] :
-        rotate -= 1
-
-    if keys[pygame.K_w] :
-        car_x -= speed * math.sin(math.radians(rotate))
-        car_y -= speed * math.cos(math.radians(rotate))
-
-    if keys[pygame.K_s] :
-        car_x += speed * math.sin(math.radians(rotate))
-        car_y += speed  * math.cos(math.radians(rotate))
- 
-
-    rotated_image = pygame.transform.rotate(scaled_car_image,rotate)
-    rotated_rect = rotated_image.get_rect()
-
-    rotated_rect.center = (car_x* 0.703125,car_y * 0.703125 + 107)
+    x,y = pygame.mouse.get_pos()
+    print(f'Cords | x : {x} , y : {y}')
     
     window.blit(display_tract,(0,107))
-    window.blit(rotated_image,rotated_rect)
+   
 
     
 
     pygame.display.flip()
     clock.tick(60)
+
+# Checkpoints 
+
+'''
+1. x : 154 , y : 524-600
+2. x : 127 , y : 324- 399
+3. x : 515 , y : 157-230 
+4. x : 747 , y : 545-599
+5. x : 430 - 535 , y : 499
+6. lap
+x - 417 , y = 523 , 602
+
+
+'''
+
