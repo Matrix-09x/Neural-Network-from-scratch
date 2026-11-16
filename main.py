@@ -372,11 +372,7 @@ for i in range(1,51):
     
 
     for index,popu in enumerate(population):
-        check_1 = 0 
-        check_2 = 0
-        check_3 = 0
-        check_4 = 0
-        check_5 = 0
+        checkpoint_progress = 0
         lap_counter = 0
         velocity = 0 
         font_7_render = font_7.render(f'Car {index+1} / {len(population)}',True,(150,180,195))
@@ -432,26 +428,32 @@ for i in range(1,51):
             checkpoint_3 = lap_completion(current_car_x,current_car_y,car_x,car_y,515,157,230,'vertical')
             checkpoint_4 = lap_completion(current_car_x,current_car_y,car_x,car_y,747,545,599,'vertical')
             checkpoint_5 = lap_completion(current_car_x,current_car_y,car_x,car_y,499,430,535,'horizontal')
-            
-            lap_checker =  lap_completion(current_car_x,current_car_y,car_x,car_y,417,523,602,'vertical')
+            lap_checker = lap_completion(current_car_x,current_car_y,car_x,car_y,417,523,602,'vertical')
 
-            check_1 += checkpoint_1
-            check_2 += checkpoint_2
-            check_3 += checkpoint_3
-            check_4 += checkpoint_4
-            check_5 += checkpoint_5
-            lap_counter += lap_checker
-            
+            if checkpoint_progress == 0 :
+                if checkpoint_1 :
+                    checkpoint_progress += 1 
 
+            elif checkpoint_progress == 1 :
+                if checkpoint_2 :
+                    checkpoint_progress += 1 
 
-            
-            
-                                                                                                              
-            # if lap_checker : 
-            #     lap_counter += 1
-            #     print(lap_counter)
+            elif checkpoint_progress == 2 :
+                if checkpoint_3 :
+                    checkpoint_progress += 1
 
+            elif checkpoint_progress == 3 : 
+                if checkpoint_4 :
+                    checkpoint_progress += 1
 
+            elif checkpoint_progress == 4 :
+                if checkpoint_5 :
+                    checkpoint_progress += 1 
+
+            elif checkpoint_progress == 5 :
+                if lap_checker :
+                    lap_counter += 1
+                    checkpoint_progress = 0
 
 
 
