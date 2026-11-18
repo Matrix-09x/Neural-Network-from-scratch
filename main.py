@@ -270,7 +270,7 @@ def cross0ver(selected_candidate,population) :
 
             for i in range(1,3) :
                 mutation_prob = random.uniform(0,1)
-                if mutation_prob <= 0.01 :
+                if mutation_prob <= 0.02:
                     if i == 1 :
                         child_parameters = mutation(child_parameters)
                     else :
@@ -307,12 +307,13 @@ def lap_completion(current_car_x ,current_car_y , car_x,car_y,target_Cords_1,tar
 
    
 
-def fitness_function(frame_survived,distance , lap_counter) :
+def fitness_function(frame_survived,lap_counter,checkpoint_progress ,distance) :
 
-    norm_frame_survived = frame_survived / 3000
-    norm_distance =  distance/222
+    norm_frame_survived = frame_survived / 1800
     norm_lap_counter = lap_counter
-    score = norm_frame_survived *  0.1 + norm_distance * 0.2 + norm_lap_counter * 10
+    norm_checkpoint_prog = checkpoint_progress/5
+    norm_distance = min(distance/3000,1)
+    score = norm_frame_survived *  0.1 + norm_distance * 0.2 + norm_checkpoint_prog * 2 + norm_lap_counter *20
 
     return score
     
@@ -386,8 +387,27 @@ for i in range(1,51):
         
         total_distance = 0
         lap_counter = 0
+        timer = 0
+        timer_limit = 1800
         while running :
+             
 
+            if timer >= timer_limit :
+                car_x , car_y = 577 , 629 
+                rotate = 90
+                fitness = fitness_function(frame_survived,lap_counter,checkpoint_progress,total_distance)
+                fitness_scores.append(fitness)
+                car_distance_list.append(total_distance)
+                total_distance = 0
+                lap_counter_list.append(lap_counter)
+                frame_survived = 0
+                checkpoint_progress = 0
+                break 
+                
+
+
+            
+            timer  += 1
             
 
             frame_survived += 1
@@ -432,28 +452,34 @@ for i in range(1,51):
 
             if checkpoint_progress == 0 :
                 if checkpoint_1 :
+                    timer = 0
                     checkpoint_progress += 1 
 
             elif checkpoint_progress == 1 :
                 if checkpoint_2 :
+                    timer = 0
                     checkpoint_progress += 1 
 
             elif checkpoint_progress == 2 :
                 if checkpoint_3 :
+                    timer = 0
                     checkpoint_progress += 1
 
             elif checkpoint_progress == 3 : 
                 if checkpoint_4 :
+                    timer = 0
                     checkpoint_progress += 1
 
             elif checkpoint_progress == 4 :
                 if checkpoint_5 :
+                    timer = 0
                     checkpoint_progress += 1 
 
             elif checkpoint_progress == 5 :
                 if lap_checker :
                     lap_counter += 1
                     checkpoint_progress = 0
+                    timer = 0
 
 
 
@@ -461,7 +487,7 @@ for i in range(1,51):
 
             total_distance += distance_travelled
 
-            temp_fitness = fitness_function(frame_survived,total_distance,lap_counter)
+            temp_fitness = fitness_function(frame_survived,lap_counter,checkpoint_progress,total_distance)
             font_4_render = font_4.render(f'Current fitness score : {temp_fitness:.3f}',True,(100,220,140))
             if fitness_scores == [] :
                 font_5_render = font_5.render(f'Best fitness : -----',True,(100,220,140))
@@ -625,16 +651,18 @@ for i in range(1,51):
 
                 car_x , car_y = 577 , 629
                 rotate = 90
-                fitness = fitness_function(frame_survived,total_distance,lap_counter)
+                fitness = fitness_function(frame_survived,lap_counter,checkpoint_progress,total_distance)
                 # print(f'fitness score | {fitness}')
                 # print(f'lap counter | {lap_counter}')
                 # print(f'ditance travelled  |{total_distance}')
                 # print(f'frame survived | {frame_survived}')
                 fitness_scores.append(fitness)
-                car_distance_list .append(total_distance)
+                car_distance_list.append(total_distance)
                 total_distance = 0
                 lap_counter_list.append(lap_counter)
                 frame_survived = 0
+                checkpoint_progress = 0
+
                 break
             
                 
